@@ -3,7 +3,7 @@ En Visual Studio Code, podemos hacer click derecho sobre el contenedor y pulsar 
 
 ![VSCode attach shell](/img/1a.png)
 
-Otra manera es a través de una terminal, lanzando el comando `docker exec -it NOMBRE_CONTENEDOR bash'
+Otra manera es a través de una terminal, lanzando el comando `docker exec -it NOMBRE_CONTENEDOR bash`.
 
 ## En el contenedor anterior con que opciones tiene que haber sido arrancado para poder interactuar con las entradas y salidas del contenedor
 Para poder interactuar con entradas y salidas, añadiremos como en el caso anterior el parámetro `-it`.

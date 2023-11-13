@@ -1,10 +1,13 @@
 ## Explica métodos para 'abrir' una consola/shell a un contenedor que se está ejecutando
 En Visual Studio Code, podemos hacer click derecho sobre el contenedor y pulsar en la opción "Attach shell"
+
 ![VSCode attach shell](/img/1a.png)
+
 Otra manera es a través de una terminal, lanzando el comando `docker exec -it NOMBRE_CONTENEDOR bash'
 
 ## En el contenedor anterior con que opciones tiene que haber sido arrancado para poder interactuar con las entradas y salidas del contenedor
 Para poder interactuar con entradas y salidas, añadiremos como en el caso anterior el parámetro `-it`.
+
 ![Interactuando con el contenedor](/img/2a.png)
 ## ¿Cómo sería un fichero docker-compose para que dos contenedores se comuniquen entre si en una red solo de ellos?
 ```
@@ -66,11 +69,129 @@ Por ejemplo:
       - ./conf:/etc/bind
       - ./zonas:/var/lib/bind
 ```
-## Añade una zona tiendadeelectronica.int en tu docker DNS que tenga
-### www a la IP 172.16.0.1
-### owncloud sea un CNAME de www
-### un registro de texto con el contenido "1234ASDF"
+## Añade una zona tiendadeelectronica.int en tu docker DNS que tenga:
+* www a la IP 172.16.0.1
+* owncloud sea un CNAME de www
+* un registro de texto con el contenido "1234ASDF"
+
+Realizamos los siguientes pasos en las carpetas que tenemos enlazadas en el host con el contenedor DNS:
+
+Modificamos el archivo `named.conf.local` para añadir el el archivo de la base de datos de la nueva zona:
+
+![Modificando named.conf.local](/img/9a.png)
+
+Creamos el archivo de base de datos de la zona, llamándolo `db.tiendadeelectronica.int`, y añadimos el siguiente contenido:
+```
+ $TTL 38400	; 10 hours 40 minutes
+@		IN SOA	ns.tiendadeelectronica.int. some.email.address. (
+				10000002   ; serial
+				10800      ; refresh (3 hours)
+				3600       ; retry (1 hour)
+				604800     ; expire (1 week)
+				38400      ; minimum (10 hours 40 minutes)
+				)
+@		    IN NS	ns.tiendadeelectronica.int.
+ns		    IN A		172.16.0.254
+www	        IN A		172.16.0.1
+owncloud	IN CNAME	www
+texto	    IN TXT		1234ASDF
+```
 ### Comprueba que todo funciona con el comando "dig"
+#### www a la IP 172.16.0.1
+```console
+root@8909d831d149:/# dig @172.28.5.1 www.tiendadeelectronica.int
+
+; <<>> DiG 9.18.18-0ubuntu0.23.04.1-Ubuntu <<>> @172.28.5.1 www.tiendadeelectronica.int
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 6098
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 31904dee4b246ec201000000655247c134198f29c013e83e (good)
+;; QUESTION SECTION:
+;www.tiendadeelectronica.int.   IN      A
+
+;; ANSWER SECTION:
+www.tiendadeelectronica.int. 38400 IN   A       172.16.0.1
+
+;; Query time: 0 msec
+;; SERVER: 172.28.5.1#53(172.28.5.1) (UDP)
+;; WHEN: Mon Nov 13 15:58:57 UTC 2023
+;; MSG SIZE  rcvd: 100
+```
+#### owncloud sea un CNAME de www
+```console
+root@8909d831d149:/# dig @172.28.5.1 owncloud.tiendadeelectronica.int
+
+; <<>> DiG 9.18.18-0ubuntu0.23.04.1-Ubuntu <<>> @172.28.5.1 owncloud.tiendadeelectronica.int
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 11222
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 2e684df45bad385e01000000655248874110dcdc1f1b6f49 (good)
+;; QUESTION SECTION:
+;owncloud.tiendadeelectronica.int. IN   A
+
+;; ANSWER SECTION:
+owncloud.tiendadeelectronica.int. 38400 IN CNAME www.tiendadeelectronica.int.
+www.tiendadeelectronica.int. 38400 IN   A       172.16.0.1
+
+;; Query time: 0 msec
+;; SERVER: 172.28.5.1#53(172.28.5.1) (UDP)
+;; WHEN: Mon Nov 13 16:02:15 UTC 2023
+;; MSG SIZE  rcvd: 123
+```
+#### Un registro de texto con el contenido "1234ASDF"
+```console
+root@8909d831d149:/# dig @172.28.5.1 -t txt texto.tiendadeelectronica.int
+
+; <<>> DiG 9.18.18-0ubuntu0.23.04.1-Ubuntu <<>> @172.28.5.1 -t txt texto.tiendadeelectronica.int
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 47044
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: e8795165230527c60100000065524974042c38dd1fd624bd (good)
+;; QUESTION SECTION:
+;texto.tiendadeelectronica.int. IN      TXT
+
+;; ANSWER SECTION:
+texto.tiendadeelectronica.int. 38400 IN TXT     "1234ASDF"
+
+;; Query time: 0 msec
+;; SERVER: 172.28.5.1#53(172.28.5.1) (UDP)
+;; WHEN: Mon Nov 13 16:06:12 UTC 2023
+;; MSG SIZE  rcvd: 107
+```
 ### Muestra en los logs que el servicio arranca correctamente
 
 ## Realiza el apartado 9 en la máquina virtual con DNS
+Modificamos el archivo `named.conf.local` para añadir el el archivo de la base de datos de la nueva zona:
+
+![Modificando named.conf.local](/img/10a.png)
+
+Creamos el archivo de base de datos de la zona, llamándolo `db.tiendadeelectronica.int`, y añadimos el siguiente contenido:
+
+![Creando db.tiendadeelectronica.int](/img/10b.png)
+
+Comprobamos con el comando `dig` que todo funciona:
+
+![Modificando named.conf.local](/img/10c.png)
+
+![Modificando named.conf.local](/img/10d.png)
+
+![Modificando named.conf.local](/img/10e.png)
+
+Comprobamos en los logs que el servicio arranca correctamente:
+
+![Modificando named.conf.local](/img/10f.png)

@@ -37,9 +37,24 @@ En la parte de código relativa a cada contenedor añadiremos el apartado `netwo
 ```
 En este ejemplo, le asignamos la IP 172.28.5.1 al contenedor.
 ## ¿Que comando de consola puedo usar para saber las ips de los contenedores anteriores? Filtra todo lo que puedas la salida. El comando no es "ip a", tiene que ser desde fuera del contenedor.
-
+Podemos utilizar desde fuera del contenedor el comando `docker inspect`. Pero primero necesitamos saber el ID del contenedor a comprobar. Para ellos usamos el comando `docker ps`:
+```console
+$ docker ps
+CONTAINER ID   IMAGE           COMMAND       CREATED       STATUS          PORTS     NAMES
+60a5b149db23   ubuntu:latest   "/bin/bash"   3 weeks ago   Up 28 minutes             asir_cliente
+```
+Ahora ya podemos utilizar 'docker inspect`. Para filtrar la salida, que es bastante larga, y sólo obtener la IP, podemos utilizar el siguiente comando con filtro:
+```console
+$ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 60a5b149db23
+172.28.5.0
+```
 ## ¿Cual es la funcionalidad del apartado "ports" en docker compose?
- 
+Con el apartado `ports` podemos redirigir puertos del equipo a puertos específicos del contenedor. Como por ejemplo:
+`
+ports:
+      - "8001:5432"
+`
+En este caso, 8001 sería el puerto de la máquina y 5432 el del contenedor.
 ## ¿Para que sirve el registro CNAME? Pon un ejemplo
 
 ## ¿Como puedo hacer para que la configuración de un contenedor DNS no se borre si creo otro contenedor?

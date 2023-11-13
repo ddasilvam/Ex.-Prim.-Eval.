@@ -1,11 +1,11 @@
 ## Explica métodos para 'abrir' una consola/shell a un contenedor que se está ejecutando
 En Visual Studio Code, podemos hacer click derecho sobre el contenedor y pulsar en la opción "Attach shell"
-![VSCode attach shell](img/1a.png)
+![VSCode attach shell](/img/1a.png)
 Otra manera es a través de una terminal, lanzando el comando `docker exec -it NOMBRE_CONTENEDOR bash'
 
 ## En el contenedor anterior con que opciones tiene que haber sido arrancado para poder interactuar con las entradas y salidas del contenedor
 Para poder interactuar con entradas y salidas, añadiremos como en el caso anterior el parámetro `-it`.
-![Interactuando con el contenedor](img/2a.png)
+![Interactuando con el contenedor](/img/2a.png)
 ## ¿Cómo sería un fichero docker-compose para que dos contenedores se comuniquen entre si en una red solo de ellos?
 ```
 services:

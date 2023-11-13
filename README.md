@@ -175,6 +175,22 @@ texto.tiendadeelectronica.int. 38400 IN TXT     "1234ASDF"
 ```
 ### Muestra en los logs que el servicio arranca correctamente
 
+En Visual Studio, hacemos click derecho sobre el contenedor y pulsamos en "View Logs".
+En la terminal se nos mostrarán los registros de arranque del contenedor, y en ellos podemos comprobar que tanto `bind9` como las zonas DNS se han cargado correctamente:
+
+```console
+Starting named...
+exec /usr/sbin/named -u "bind" "-g" ""
+13-Nov-2023 16:21:11.957 starting BIND 9.18.18-0ubuntu0.23.04.1-Ubuntu (Extended Support Version) <id:>
+13-Nov-2023 16:21:11.957 running on Linux x86_64 6.1.0-13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.55-1 (2023-09-29)
+[...]
+13-Nov-2023 16:21:11.965 zone tiendadeelectronica.int/IN: loaded serial 10000002
+13-Nov-2023 16:21:11.965 zone asircastelao.int/IN: loaded serial 10000002
+13-Nov-2023 16:21:11.965 all zones loaded
+13-Nov-2023 16:21:11.965 running
+13-Nov-2023 16:21:11.985 managed-keys-zone: Key 20326 for zone . is now trusted (acceptance timer complete)
+```
+
 ## Realiza el apartado 9 en la máquina virtual con DNS
 Modificamos el archivo `named.conf.local` para añadir el el archivo de la base de datos de la nueva zona:
 

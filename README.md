@@ -56,9 +56,16 @@ ports:
 `
 En este caso, 8001 sería el puerto de la máquina y 5432 el del contenedor.
 ## ¿Para que sirve el registro CNAME? Pon un ejemplo
-
+Un CNAME es un nombre canónico que, en el caso del DNS, sirve como alias de un dominio. 
+Por ejemplo, si tenemos un dominio `asir.net` que redirige a la IP 192.0.2.1, y establecemos un registro CNAME llamado `blog.asir.net` con el valor `asir.net`, si nosotros visitamos `blog.asir.net` se nos redirigirá igualmente a la IP 192.0.2.1.
 ## ¿Como puedo hacer para que la configuración de un contenedor DNS no se borre si creo otro contenedor?
-
+Crearemos las carpetas que alojan la configuración del DNS en el propio host, y mediante el apartado `volumes` de Docker Compose haremos que cualquier contenedor que creemos para utilizar como DNS, utilice dichas carpetas como las suyas propias del contenedor.
+Por ejemplo:
+```
+    volumes:
+      - ./conf:/etc/bind
+      - ./zonas:/var/lib/bind
+```
 ## Añade una zona tiendadeelectronica.int en tu docker DNS que tenga
 ### www a la IP 172.16.0.1
 ### owncloud sea un CNAME de www
